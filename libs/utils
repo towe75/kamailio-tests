@@ -7,3 +7,49 @@ kill_kamailio() {
 kill_pidfile() {
 	kill $(cat ${1})
 }
+
+fn_exists() {
+    local method=$1;
+    set +e
+    type -t $method > /dev/null 2>/dev/null
+    local ret=$?
+    set -e
+    return $ret
+}
+
+do_callback() {
+    local method=$1
+    if fn_exists $method; then
+        echo "==== $method ===="
+        $method
+    fi
+}
+
+run_test() {
+    local test_method=$1
+	local result
+
+	# ensure we will fail fast if anything goes wrong
+	set -e
+
+	# optional setup
+	do_callback setup
+
+	# run the test
+	echo "==== running $test_method ===="
+	
+	if $test_method; then
+		# result should be 0 now...
+		result=$?
+	else
+		# something was wrong
+		result=$?
+		echo "==== $test_method FAILED ===="
+	fi
+
+	# optional teardown (even if test failed)
+	do_callback teardown
+
+	exit $result
+
+}
