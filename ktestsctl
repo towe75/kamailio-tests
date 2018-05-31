@@ -101,7 +101,8 @@ ktestsrun() {
 					# save stdout and stderr, then redirect to /dev/null
 					exec 3>&1 4>&2 >/dev/null 2>&1
 				fi
-				./${texec}
+				TESTROOT="$TESTROOT" \
+					./${texec}
 				ret=$?
 				if [ "${UNITOUTPUT}" == "no" ]; then
 					# restore stdout and stderr
@@ -128,6 +129,9 @@ ktestsrun() {
 
 #
 ##### ================================================ #####
+
+ME=$(readlink -f "${BASH_SOURCE[0]}")
+TESTROOT=$(dirname "$ME")
 
 ### evaluate first the options
 CMDPARAMS=()
